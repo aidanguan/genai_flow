@@ -1,3 +1,8 @@
+// Excalidraw 类型定义（使用 any 避免导入问题）
+export type ExcalidrawElement = any
+export type AppState = any
+export type BinaryFiles = any
+
 export const enum DiagramType {
   MERMAID = 'MERMAID',
   EXCALIDRAW = 'EXCALIDRAW'
@@ -5,8 +10,16 @@ export const enum DiagramType {
 
 export interface DiagramState {
   mermaidCode: string
-  excalidrawElements: any[]
+  excalidrawElements: ExcalidrawElement[]
   title: string
+  // Excalidraw 扩展字段
+  excalidrawFiles?: BinaryFiles
+  excalidrawAppState?: Partial<AppState>
+  sourceType?: 'ai' | 'manual' | 'converted'
+  conversionMetadata?: {
+    originalMermaidCode?: string
+    convertedAt?: number
+  }
 }
 
 export interface HistoryItem {
@@ -15,6 +28,42 @@ export interface HistoryItem {
   type: DiagramType
   preview: string
   state: DiagramState
+}
+
+// 转换错误类型
+export enum ConversionErrorType {
+  SYNTAX_ERROR = 'SYNTAX_ERROR',
+  UNSUPPORTED_DIAGRAM = 'UNSUPPORTED_DIAGRAM',
+  CONVERSION_FAILED = 'CONVERSION_FAILED',
+  EMPTY_DIAGRAM = 'EMPTY_DIAGRAM'
+}
+
+export class ConversionError extends Error {
+  constructor(
+    public type: ConversionErrorType,
+    message: string
+  ) {
+    super(message)
+    this.name = 'ConversionError'
+  }
+}
+
+// 转换选项
+export interface ConversionOptions {
+  fontSize?: string
+  curve?: 'linear' | 'basis'
+  themeVariables?: {
+    fontSize?: string
+  }
+  flowchart?: {
+    curve?: 'linear' | 'basis'
+  }
+}
+
+// 转换结果
+export interface ConversionResult {
+  elements: ExcalidrawElement[]
+  files: BinaryFiles | null
 }
 
 export interface MermaidConfig {
