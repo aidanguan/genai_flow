@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+/* 配置深色模式 */
+@variant dark (html.dark &);
+
+/* 自定义主题配置 */
+@theme {
+  --color-slate-925: #0a0f1a;
+  --color-slate-950: #0a0f1e;
+}
+
+/* CSS 变量用于动态主题 */
+:root {
+  --dot-color: #cbd5e1; /* slate-300 */
+}
+.dark {
+  --dot-color: #334155; /* slate-700 */
+}
+
+/* 全局重置 */
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* 点状网格背景 */
+.bg-dot-grid {
+  background-size: 20px 20px;
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+}
+
+/* 自定义滚动条 */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #94a3b8; /* slate-400 */
+  border-radius: 3px;
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #334155; /* slate-700 */
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #64748b; /* slate-500 */
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #475569; /* slate-600 */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* 动画 */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoom-in {
+  from { 
+    opacity: 0;
+    transform: scale(0.95); 
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1); 
+  }
+}
+
+.animate-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.zoom-in {
+  animation: zoom-in 0.2s ease-out;
+}
