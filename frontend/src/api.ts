@@ -1,8 +1,10 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+export type DiagramType = 'MERMAID' | 'EXCALIDRAW'
+
 export interface GenerateDiagramRequest {
   prompt: string
-  diagram_type: 'MERMAID' | 'EXCALIDRAW'
+  diagram_type: DiagramType
   model?: string
   chart_type?: string
 }
@@ -22,6 +24,24 @@ export interface UserResponse {
   username: string
   email: string
   avatar_url?: string
+}
+
+export interface DiagramResponse {
+  id: number
+  title: string
+  diagram_type: DiagramType
+  render_engine: DiagramType
+  mermaid_code?: string | null
+  excalidraw_data?: any
+  created_at: string
+  updated_at?: string | null
+}
+
+export interface DiagramCreateRequest {
+  title: string
+  diagram_type: DiagramType
+  mermaid_code?: string | null
+  excalidraw_data?: any
 }
 
 export interface RegisterRequest {
@@ -97,16 +117,24 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
 export async function generateDiagram(data: GenerateDiagramRequest): Promise<GenerateDiagramResponse> {
   const token = getToken()
   
-  if (!token) {
+  // 开发模式下允许跳过登录验证
+  const isDevelopment = import.meta.env.DEV
+  
+  if (!token && !isDevelopment) {
     throw new Error('未登录，请先登录')
+  }
+
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
   }
 
   const response = await fetch(`${API_BASE_URL}/api/ai/generate`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify(data),
   })
 
@@ -125,4 +153,33 @@ export async function generateDiagram(data: GenerateDiagramRequest): Promise<Gen
 // 检查是否已登录
 export function isAuthenticated(): boolean {
   return !!getToken()
+}
+
+// 保存图形（Mermaid / Excalidraw，包括 Excalidraw JSON）
+export async function saveDiagram(data: DiagramCreateRequest): Promise<DiagramResponse> {
+  const token = getToken()
+
+  if (!token) {
+    throw new Error('未登录，请先登录')
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/diagrams`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      removeToken()
+      throw new Error('登录已过期，请重新登录')
+    }
+    const error = await response.json()
+    throw new Error(error.detail || '保存失败')
+  }
+
+  return await response.json()
 }

@@ -67,7 +67,7 @@ services:
       - genai_network
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-  # 前端 Vue 应用
+  # 前端 React 应用
   frontend:
     build:
       context: ./frontend

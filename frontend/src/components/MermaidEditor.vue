@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, nextTick } from 'vue'
 import mermaid from 'mermaid'
-import { Download, ZoomIn, ZoomOut, Maximize, AlertCircle, Palette, ArrowRight, FileText, Image, FileDown, Plus, GitBranch, Square } from 'lucide-vue-next'
+import { Download, ZoomIn, ZoomOut, Maximize, AlertCircle, Palette, ArrowRight, FileText, Image, FileDown, Plus, GitBranch, Square, Send } from 'lucide-vue-next'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import { saveAs } from 'file-saver'
@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:code': [code: string]
+  'convert-to-excalidraw': [code: string]
 }>()
 
 const containerRef = ref<HTMLDivElement>()
@@ -720,6 +721,16 @@ const handleKeyDown = (e: KeyboardEvent) => {
             </button>
           </div>
         </div>
+
+        <!-- 转换到 Excalidraw 按钮 -->
+        <button 
+          @click="emit('convert-to-excalidraw', props.code)"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all border border-blue-200 dark:border-blue-700/50 hover:border-blue-300 dark:hover:border-blue-600"
+          title="转换为 Excalidraw 白板"
+        >
+          <Send :size="16" />
+          <span class="hidden sm:inline">转换为 Excalidraw</span>
+        </button>
 
         <!-- 导出按钮 -->
         <div class="relative">
