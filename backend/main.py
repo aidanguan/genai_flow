@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr
 import uvicorn
+import base64
+from io import BytesIO
 
 from config import settings
 from database import get_db, Base, engine
@@ -91,6 +93,12 @@ class AIGenerateRequest(BaseModel):
     prompt: str
     diagram_type: DiagramTypeEnum
     model: str = "gemini-3-pro"
+
+
+class ExportRequest(BaseModel):
+    svg_content: str
+    format: str  # 'svg', 'png', 'pdf'
+    filename: Optional[str] = None
 
 
 # ===== API 路由 =====
@@ -256,6 +264,36 @@ async def delete_diagram(
     db.commit()
     
     return {"success": True, "message": "图形已删除"}
+
+
+@app.post("/api/export")
+async def export_diagram(
+    request: ExportRequest,
+    current_user: User = Depends(get_current_active_user)
+):
+    """导出图表为 SVG/PNG/PDF"""
+    try:
+        svg_content = request.svg_content
+        export_format = request.format.lower()
+        filename = request.filename or f"diagram.{export_format}"
+        
+        if export_format == 'svg':
+            svg_bytes = svg_content.encode('utf-8')
+            return StreamingResponse(
+                BytesIO(svg_bytes),
+                media_type="image/svg+xml",
+                headers={"Content-Disposition": f"attachment; filename={filename}"}
+            )
+        elif export_format == 'png':
+            # 返回 SVG,由前端使用 html2canvas 转换
+            return {"success": True, "message": "请使用前端转换为 PNG"}
+        elif export_format == 'pdf':
+            # 返回 SVG,由前端使用 jsPDF 转换
+            return {"success": True, "message": "请使用前端转换为 PDF"}
+        else:
+            raise HTTPException(status_code=400, detail="不支持的导出格式")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"导出失败: {str(e)}")
 
 
 if __name__ == "__main__":

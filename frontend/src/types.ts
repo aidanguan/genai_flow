@@ -1,4 +1,4 @@
-export enum DiagramType {
+export const enum DiagramType {
   MERMAID = 'MERMAID',
   EXCALIDRAW = 'EXCALIDRAW'
 }
@@ -22,9 +22,8 @@ export interface MermaidConfig {
 }
 
 export const SUPPORTED_MODELS = [
-  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
-  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
   { id: 'gpt-5.1', name: 'GPT 5.1' },
+  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
 ]
 
 export const TEMPLATES = [

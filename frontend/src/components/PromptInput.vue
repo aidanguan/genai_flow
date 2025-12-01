@@ -43,7 +43,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
         :disabled="disabled"
       >
         <option v-for="m in SUPPORTED_MODELS" :key="m.id" :value="m.id">
-          {{ m.name.split('(')[0].trim() }}
+          {{ m.name?.split?.('(')?.[0]?.trim?.() || m.name }}
         </option>
       </select>
     </div>
