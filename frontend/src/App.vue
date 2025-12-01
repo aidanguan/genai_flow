@@ -100,16 +100,17 @@ const handleLogout = () => {
 }
 
 // AI 生成处理
-const handleGenerate = async (prompt: string, model: string) => {
+const handleGenerate = async (prompt: string, model: string, chartType: string) => {
   isLoading.value = true
   try {
-    console.log('🚀 开始生成图表:', { prompt, model, type: activeTab.value })
+    console.log('🚀 开始生成图表:', { prompt, model, chartType, type: activeTab.value })
     
     // 调用后端 API
     const response = await generateDiagram({
       prompt,
       diagram_type: activeTab.value === DiagramType.MERMAID ? 'MERMAID' : 'EXCALIDRAW',
-      model
+      model,
+      chart_type: chartType
     })
     
     console.log('✅ 生成成功:', response)
@@ -186,6 +187,7 @@ const toggleTheme = () => {
           <div class="flex-1 p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 min-h-[200px] flex flex-col overflow-y-auto">
             <PromptInput 
               :disabled="isLoading"
+              :diagramType="activeTab"
               @generate="handleGenerate"
             />
           </div>

@@ -90,6 +90,9 @@ class Settings(BaseSettings):
     
     # 数据库配置
     DATABASE_URL: str = "sqlite:///./genai_flow.db"
+    MYSQL_ROOT_PASSWORD: Optional[str] = None
+    MYSQL_USER: Optional[str] = None
+    MYSQL_PASSWORD: Optional[str] = None
     
     # Redis 配置
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -105,6 +108,10 @@ class Settings(BaseSettings):
     FRONTEND_PORT: int = 8080
     UPLOAD_DIR: str = "./uploads"
     MAX_FILE_SIZE: int = 10
+    
+    # 应用配置
+    DEBUG: Optional[bool] = False
+    CORS_ORIGINS: Optional[str] = "http://localhost:8080"
     
     class Config:
         env_file = str(ENV_FILE)

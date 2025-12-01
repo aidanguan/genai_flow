@@ -4,6 +4,7 @@ export interface GenerateDiagramRequest {
   prompt: string
   diagram_type: 'MERMAID' | 'EXCALIDRAW'
   model?: string
+  chart_type?: string
 }
 
 export interface GenerateDiagramResponse {

@@ -139,9 +139,10 @@ const renderDiagram = async () => {
     const { svg } = await mermaid.render(id, props.code)
     svgContent.value = svg
     
-    // 重新绑定双击事件
+    // 重新绑定双击事件并自动适应画布
     nextTick(() => {
       bindDoubleClickEvent()
+      fitToCanvas()
     })
   } catch (err: any) {
     console.error('Mermaid render error:', err)
@@ -466,6 +467,37 @@ const downloadPDF = async () => {
 const resetView = () => {
   scale.value = 1
   position.value = { x: 0, y: 0 }
+}
+
+// 自适应画布
+const fitToCanvas = () => {
+  if (!containerRef.value) return
+  
+  nextTick(() => {
+    const svgElement = containerRef.value?.querySelector('svg')
+    if (!svgElement) return
+    
+    // 获取 SVG 的实际尺寸
+    const bbox = svgElement.getBBox()
+    const svgWidth = bbox.width
+    const svgHeight = bbox.height
+    
+    // 获取容器尺寸（减去一些 padding）
+    const container = containerRef.value?.parentElement
+    if (!container) return
+    
+    const containerWidth = container.clientWidth - 100 // 留出边距
+    const containerHeight = container.clientHeight - 100
+    
+    // 计算缩放比例（取较小的比例以确保完全显示）
+    const scaleX = containerWidth / svgWidth
+    const scaleY = containerHeight / svgHeight
+    const newScale = Math.min(scaleX, scaleY, 1) // 最大不超过 1
+    
+    // 应用缩放并居中
+    scale.value = newScale
+    position.value = { x: 0, y: 0 }
+  })
 }
 
 // 绑定双击事件
@@ -822,8 +854,9 @@ const handleKeyDown = (e: KeyboardEvent) => {
       </div>
       
       <button 
-        @click="resetView" 
-        class="bg-white/90 dark:bg-slate-800/90 backdrop-blur rounded-lg p-2 border border-slate-200 dark:border-slate-700 shadow-xl text-slate-600 dark:text-slate-300"
+        @click="fitToCanvas" 
+        class="bg-white/90 dark:bg-slate-800/90 backdrop-blur rounded-lg p-2 border border-slate-200 dark:border-slate-700 shadow-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+        title="自适应画布"
       >
         <Maximize :size="18" />
       </button>

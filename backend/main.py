@@ -33,7 +33,7 @@ app = FastAPI(
 # 配置 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "http://localhost:8080"],
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "http://localhost:5177", "http://localhost:5178", "http://localhost:5179", "http://localhost:8080"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -93,6 +93,7 @@ class AIGenerateRequest(BaseModel):
     prompt: str
     diagram_type: DiagramTypeEnum
     model: str = "gemini-3-pro"
+    chart_type: Optional[str] = "flowchart"
 
 
 class ExportRequest(BaseModel):
@@ -172,7 +173,8 @@ async def generate_diagram(
         result = await ai_service.generate_diagram(
             prompt=request.prompt,
             diagram_type=request.diagram_type,
-            model=request.model
+            model=request.model,
+            chart_type=request.chart_type
         )
         
         return {

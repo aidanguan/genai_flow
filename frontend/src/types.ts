@@ -26,6 +26,18 @@ export const SUPPORTED_MODELS = [
   { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
 ]
 
+export const MERMAID_CHART_TYPES = [
+  { id: 'flowchart', name: '流程图', keyword: 'graph TD' },
+  { id: 'sequence', name: '时序图', keyword: 'sequenceDiagram' },
+  { id: 'class', name: '类图', keyword: 'classDiagram' },
+  { id: 'state', name: '状态图', keyword: 'stateDiagram-v2' },
+  { id: 'er', name: 'ER图', keyword: 'erDiagram' },
+  { id: 'gantt', name: '甘特图', keyword: 'gantt' },
+  { id: 'pie', name: '饼图', keyword: 'pie' },
+  { id: 'journey', name: '旅程图', keyword: 'journey' },
+  { id: 'architecture', name: '架构图', keyword: 'architecture-beta' },
+]
+
 export const TEMPLATES = [
   {
     name: '流程图',

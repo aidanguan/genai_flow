@@ -1,24 +1,26 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Send, Sparkles } from 'lucide-vue-next'
-import { SUPPORTED_MODELS } from '../types'
+import { SUPPORTED_MODELS, MERMAID_CHART_TYPES } from '../types'
 
 interface Props {
   disabled: boolean
+  diagramType: string
 }
 
 defineProps<Props>()
 
 const emit = defineEmits<{
-  generate: [prompt: string, model: string]
+  generate: [prompt: string, model: string, chartType: string]
 }>()
 
 const prompt = ref('')
 const selectedModel = ref(SUPPORTED_MODELS[0].id)
+const selectedChartType = ref(MERMAID_CHART_TYPES[0].id)
 
 const handleSubmit = () => {
   if (prompt.value.trim()) {
-    emit('generate', prompt.value, selectedModel.value)
+    emit('generate', prompt.value, selectedModel.value, selectedChartType.value)
   }
 }
 
@@ -37,15 +39,27 @@ const handleKeyDown = (e: KeyboardEvent) => {
         <Sparkles :size="16" />
         <span class="text-xs font-bold uppercase tracking-wider">AI 助手</span>
       </div>
-      <select 
-        v-model="selectedModel"
-        class="bg-slate-100 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer max-w-[150px] transition-colors"
-        :disabled="disabled"
-      >
-        <option v-for="m in SUPPORTED_MODELS" :key="m.id" :value="m.id">
-          {{ m.name?.split?.('(')?.[0]?.trim?.() || m.name }}
-        </option>
-      </select>
+      <div class="flex items-center gap-2">
+        <select 
+          v-if="diagramType === 'MERMAID'"
+          v-model="selectedChartType"
+          class="bg-slate-100 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer max-w-[120px] transition-colors"
+          :disabled="disabled"
+        >
+          <option v-for="c in MERMAID_CHART_TYPES" :key="c.id" :value="c.id">
+            {{ c.name }}
+          </option>
+        </select>
+        <select 
+          v-model="selectedModel"
+          class="bg-slate-100 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer max-w-[150px] transition-colors"
+          :disabled="disabled"
+        >
+          <option v-for="m in SUPPORTED_MODELS" :key="m.id" :value="m.id">
+            {{ m.name?.split?.('(')?.[0]?.trim?.() || m.name }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <!-- 输入区 -->
