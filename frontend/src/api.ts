@@ -10,7 +10,8 @@ export interface GenerateDiagramRequest {
 }
 
 export interface GenerateDiagramResponse {
-  code: string
+  code?: string  // Mermaid 模式下返回
+  data?: string  // Excalidraw 模式下返回
   diagram_type: string
 }
 

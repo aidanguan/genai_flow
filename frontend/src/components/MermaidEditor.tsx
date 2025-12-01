@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import mermaid from 'mermaid'
-import { Download, Send, AlertCircle, FileText, Image, FileDown } from 'lucide-react'
+import { Download, Send, AlertCircle, FileText, Image, FileDown, Palette, ArrowLeftRight, ArrowUpDown, Check } from 'lucide-react'
 import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
 
@@ -21,16 +21,32 @@ export default function MermaidEditor({
   const [svgContent, setSvgContent] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [showExportMenu, setShowExportMenu] = useState(false)
+  const [showThemeMenu, setShowThemeMenu] = useState(false)
+  const [currentTheme, setCurrentTheme] = useState<'default' | 'dark' | 'forest' | 'neutral' | 'base'>('default')
+  const [direction, setDirection] = useState<'TB' | 'LR'>('TB')
+
+  // Mermaid 主题配色方案
+  const themes: Array<{
+    value: 'default' | 'dark' | 'forest' | 'neutral' | 'base'
+    label: string
+    description: string
+  }> = [
+    { value: 'default', label: '默认', description: '经典浅色主题' },
+    { value: 'dark', label: '深色', description: '深色护眼主题' },
+    { value: 'forest', label: '森林', description: '清新绿色主题' },
+    { value: 'neutral', label: '中性', description: '简约灰色主题' },
+    { value: 'base', label: '基础', description: '简洁蓝色主题' },
+  ]
 
   // 初始化 Mermaid
   useEffect(() => {
     mermaid.initialize({
       startOnLoad: false,
-      theme: isDarkMode ? 'dark' : 'default',
+      theme: currentTheme,
       securityLevel: 'loose',
       fontFamily: 'ui-sans-serif, system-ui, sans-serif',
     })
-  }, [])
+  }, [currentTheme])
 
   // 渲染图表
   useEffect(() => {
@@ -43,8 +59,16 @@ export default function MermaidEditor({
 
       try {
         setError(null)
+        // 替换代码中的方向定义
+        let processedCode = code
+        if (code.includes('graph ')) {
+          processedCode = code.replace(/graph\s+(TD|TB|BT|RL|LR)/, `graph ${direction}`)
+        } else if (code.includes('flowchart ')) {
+          processedCode = code.replace(/flowchart\s+(TD|TB|BT|RL|LR)/, `flowchart ${direction}`)
+        }
+        
         const id = `mermaid-${Date.now()}`
-        const { svg } = await mermaid.render(id, code)
+        const { svg } = await mermaid.render(id, processedCode)
         setSvgContent(svg)
       } catch (err: any) {
         console.error('Mermaid render error:', err)
@@ -53,7 +77,7 @@ export default function MermaidEditor({
     }
 
     renderDiagram()
-  }, [code])
+  }, [code, direction, currentTheme])
 
   // 导出 SVG
   const downloadSVG = () => {
@@ -206,6 +230,55 @@ export default function MermaidEditor({
       <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30">
         <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 shadow-xl flex items-center gap-2">
           
+          {/* 主题配色选择器 */}
+          <div className="relative">
+            <button
+              onClick={() => setShowThemeMenu(!showThemeMenu)}
+              className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"
+              title="选择主题配色"
+            >
+              <Palette size={18} />
+            </button>
+            {showThemeMenu && (
+              <div className="absolute top-full mt-2 left-0 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-1 min-w-[200px] z-50">
+                {themes.map((theme) => (
+                  <button
+                    key={theme.value}
+                    onClick={() => {
+                      setCurrentTheme(theme.value)
+                      setShowThemeMenu(false)
+                    }}
+                    className="w-full px-4 py-2.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-between group"
+                  >
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {theme.label}
+                      </div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        {theme.description}
+                      </div>
+                    </div>
+                    {currentTheme === theme.value && (
+                      <Check size={16} className="text-blue-600 dark:text-blue-400" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 方向切换按钮 */}
+          <button
+            onClick={() => setDirection(direction === 'TB' ? 'LR' : 'TB')}
+            className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"
+            title={direction === 'TB' ? '切换到横向布局' : '切换到纵向布局'}
+          >
+            {direction === 'TB' ? <ArrowUpDown size={18} /> : <ArrowLeftRight size={18} />}
+          </button>
+
+          {/* 分隔线 */}
+          <div className="h-6 w-px bg-slate-300 dark:bg-slate-600"></div>
+          
           {/* 转换到 Excalidraw 按钮 */}
           <button
             onClick={() => onConvertToExcalidraw?.(code)}
@@ -217,7 +290,7 @@ export default function MermaidEditor({
           </button>
 
           {/* 导出按钮 */}
-          <div className="relative">
+          <div className="relative" onMouseLeave={() => setShowExportMenu(false)}>
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
               className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"
