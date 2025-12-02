@@ -43,10 +43,14 @@ export default function ExcalidrawWrapper({
         if (apiRef.current) {
           apiRef.current.updateScene({ elements: elementsRef.current })
           
-          // 滚动到内容
-          const sceneElements = apiRef.current.getSceneElements()
-          if (sceneElements.length > 0) {
-            apiRef.current.scrollToContent(sceneElements, { fitToContent: true })
+          // 滚动到内容（添加错误处理）
+          try {
+            const sceneElements = apiRef.current.getSceneElements()
+            if (sceneElements && sceneElements.length > 0) {
+              apiRef.current.scrollToContent(sceneElements, { fitToContent: true })
+            }
+          } catch (error) {
+            console.error('⚠️ [ExcalidrawWrapper] 滚动到内容失败:', error)
           }
         }
       }, 100)
@@ -55,7 +59,20 @@ export default function ExcalidrawWrapper({
 
   // 监听外部 elements 变化（来自转换操作）
   useEffect(() => {
-    if (!apiRef.current || !elements || elements.length === 0) return
+    console.log('🔄 [ExcalidrawWrapper] useEffect 触发:', {
+      hasAPI: !!apiRef.current,
+      elementsCount: elements?.length || 0,
+      elementsPreview: elements?.slice(0, 2).map(e => ({ type: e.type, id: e.id }))
+    })
+    
+    if (!apiRef.current || !elements || elements.length === 0) {
+      console.log('⚠️ [ExcalidrawWrapper] 跳过更新:', {
+        noAPI: !apiRef.current,
+        noElements: !elements,
+        emptyElements: elements?.length === 0
+      })
+      return
+    }
     
     const now = Date.now()
     // 防抖：500ms 内只更新一次
@@ -74,12 +91,16 @@ export default function ExcalidrawWrapper({
     console.log('🔄 [ExcalidrawWrapper] 外部元素更新:', elements.length)
     apiRef.current.updateScene({ elements })
     
-    // 滚动到内容
+    // 滚动到内容（添加错误处理）
     setTimeout(() => {
       if (apiRef.current) {
-        const sceneElements = apiRef.current.getSceneElements()
-        if (sceneElements.length > 0) {
-          apiRef.current.scrollToContent(sceneElements, { fitToContent: true })
+        try {
+          const sceneElements = apiRef.current.getSceneElements()
+          if (sceneElements && sceneElements.length > 0) {
+            apiRef.current.scrollToContent(sceneElements, { fitToContent: true })
+          }
+        } catch (error) {
+          console.error('⚠️ [ExcalidrawWrapper] 滚动到内容失败:', error)
         }
       }
     }, 50)
@@ -128,6 +149,7 @@ export default function ExcalidrawWrapper({
           tools: {
             image: true,
           },
+          dockedSidebarBreakpoint: 0,
         }}
         onChange={handleChange}
       />
