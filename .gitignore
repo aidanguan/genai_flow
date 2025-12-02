@@ -49,3 +49,6 @@ coverage/
 
 # Docker
 docker-compose.override.yml
+nginx/ssl/
+frontend/public/*.crt
+frontend/public/*.key
