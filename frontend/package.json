@@ -17,7 +17,7 @@
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.2",
-    "lucide-react": "^0.555.0",
+    "lucide-react": "^0.263.1",
     "mermaid": "^11.12.1",
     "postcss": "^8.5.6",
     "react": "^18.3.1",
@@ -30,9 +30,6 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "~5.9.3",
-    "vite": "npm:rolldown-vite@7.2.5"
-  },
-  "overrides": {
-    "vite": "npm:rolldown-vite@7.2.5"
+    "vite": "^5.4.11"
   }
 }

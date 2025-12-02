@@ -6,8 +6,8 @@ WORKDIR /app
 # 复制依赖文件
 COPY package*.json ./
 
-# 安装依赖
-RUN npm ci
+# 安装依赖 (使用 npm install 而不是 npm ci 以自动更新 lock 文件)
+RUN npm install
 
 # 复制源代码
 COPY . .
