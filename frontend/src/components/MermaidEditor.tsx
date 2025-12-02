@@ -18,6 +18,8 @@ export default function MermaidEditor({
   onConvertToExcalidraw,
 }: MermaidEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const exportMenuRef = useRef<HTMLDivElement>(null)
+  const themeMenuRef = useRef<HTMLDivElement>(null)
   const [svgContent, setSvgContent] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [showExportMenu, setShowExportMenu] = useState(false)
@@ -94,6 +96,36 @@ export default function MermaidEditor({
 
     renderDiagram()
   }, [code, direction, currentTheme])
+
+  // 点击外部关闭导出菜单
+  useEffect(() => {
+    if (!showExportMenu) return
+    const handleClickOutside = (e: MouseEvent) => {
+      const el = exportMenuRef.current
+      if (el && !el.contains(e.target as Node)) {
+        setShowExportMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showExportMenu])
+
+  // 点击外部关闭主题菜单
+  useEffect(() => {
+    if (!showThemeMenu) return
+    const handleClickOutside = (e: MouseEvent) => {
+      const el = themeMenuRef.current
+      if (el && !el.contains(e.target as Node)) {
+        setShowThemeMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showThemeMenu])
 
   // 导出 SVG
   const downloadSVG = () => {
@@ -354,7 +386,7 @@ export default function MermaidEditor({
 
   // 缩放功能
   const handleZoomIn = () => {
-    setScale(prev => Math.min(prev + 0.1, 3))
+    setScale(prev => Math.min(prev + 0.1, 6))
   }
 
   const handleZoomOut = () => {
@@ -464,7 +496,7 @@ export default function MermaidEditor({
         <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 shadow-xl flex items-center gap-2">
           
           {/* 主题配色选择器 */}
-          <div className="relative">
+          <div className="relative" ref={themeMenuRef}>
             <button
               onClick={() => setShowThemeMenu(!showThemeMenu)}
               className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"
@@ -523,7 +555,7 @@ export default function MermaidEditor({
           </button>
 
           {/* 导出按钮 */}
-          <div className="relative" onMouseLeave={() => setShowExportMenu(false)}>
+          <div className="relative" ref={exportMenuRef}>
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
               className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"

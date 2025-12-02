@@ -456,15 +456,6 @@ export default function App() {
     // 只在需要保存时才同步
   }
 
-  // 处理登录成功
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true)
-    const userInfo = getUserInfo()
-    if (userInfo) {
-      setUsername(userInfo.username)
-    }
-  }
-
   if (!isLoggedIn) {
     return <Auth onSuccess={handleLoginSuccess} />
   }
