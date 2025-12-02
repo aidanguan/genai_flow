@@ -7,6 +7,7 @@ import Header from './components/Header'
 import PromptInput from './components/PromptInput'
 import MermaidEditor from './components/MermaidEditor'
 import ExcalidrawWrapper from './components/ExcalidrawWrapper'
+import Auth from './views/Auth'
 import { generateDiagram, isAuthenticated, removeToken, getUserInfo } from './api'
 import { convertMermaidToExcalidraw, getErrorMessage } from './services/mermaidConverter'
 
@@ -198,7 +199,7 @@ function validateAndFilterElements(elements: any[]): ExcalidrawElement[] {
 
 export default function App() {
   // 状态管理
-  const [isLoggedIn, setIsLoggedIn] = useState(true) // 临时跳过登录
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [username, setUsername] = useState<string | undefined>(undefined)
   const [activeTab, setActiveTab] = useState<DiagramType>(DiagramType.MERMAID)
   const [isLoading, setIsLoading] = useState(false)
@@ -234,11 +235,13 @@ export default function App() {
       }
     }
 
-    // 临时跳过登录验证，但加载用户信息
-    setIsLoggedIn(true)
-    const userInfo = getUserInfo()
-    if (userInfo) {
-      setUsername(userInfo.username)
+    // 检查登录状态
+    if (isAuthenticated()) {
+      setIsLoggedIn(true)
+      const userInfo = getUserInfo()
+      if (userInfo) {
+        setUsername(userInfo.username)
+      }
     }
   }, [])
 
@@ -271,6 +274,16 @@ export default function App() {
   const handleLogout = () => {
     removeToken()
     setIsLoggedIn(false)
+    setUsername(undefined)
+  }
+
+  // 登录成功
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true)
+    const userInfo = getUserInfo()
+    if (userInfo) {
+      setUsername(userInfo.username)
+    }
   }
 
   // AI 生成处理
@@ -444,11 +457,7 @@ export default function App() {
   }
 
   if (!isLoggedIn) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="text-slate-600 dark:text-slate-400">Loading...</div>
-      </div>
-    )
+    return <Auth onSuccess={handleLoginSuccess} />
   }
 
   return (
