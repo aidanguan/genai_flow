@@ -84,3 +84,16 @@ html, body, #app {
 .zoom-in {
   animation: zoom-in 0.2s ease-out;
 }
+
+/* 隐藏 Excalidraw 下拉菜单中的链接组和社交媒体链接 */
+.excalidraw .dropdown-menu-group-title,
+.excalidraw .dropdown-menu-item[data-testid*="link"],
+.excalidraw .dropdown-menu-item[href*="github"],
+.excalidraw .dropdown-menu-item[href*="discord"],
+.excalidraw .dropdown-menu-item[href*="twitter"],
+.excalidraw .dropdown-menu-item[href*="excalidraw.com"],
+.excalidraw .dropdown-menu-item:has(a[href]),
+.excalidraw a.dropdown-menu-item,
+.excalidraw .dropdown-menu-container > div[style*="height: 1px"][style*="background-color"] {
+  display: none !important;
+}

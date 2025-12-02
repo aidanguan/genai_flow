@@ -149,6 +149,7 @@ export default function ExcalidrawWrapper({
           tools: {
             image: true,
           },
+          dockedSidebarBreakpoint: 0,
         }}
         onChange={handleChange}
       />

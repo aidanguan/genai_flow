@@ -7,7 +7,7 @@ import Header from './components/Header'
 import PromptInput from './components/PromptInput'
 import MermaidEditor from './components/MermaidEditor'
 import ExcalidrawWrapper from './components/ExcalidrawWrapper'
-import { generateDiagram, isAuthenticated, removeToken } from './api'
+import { generateDiagram, isAuthenticated, removeToken, getUserInfo } from './api'
 import { convertMermaidToExcalidraw, getErrorMessage } from './services/mermaidConverter'
 
 // 验证并过滤 Excalidraw 元素，确保数据完整性
@@ -199,6 +199,7 @@ function validateAndFilterElements(elements: any[]): ExcalidrawElement[] {
 export default function App() {
   // 状态管理
   const [isLoggedIn, setIsLoggedIn] = useState(true) // 临时跳过登录
+  const [username, setUsername] = useState<string | undefined>(undefined)
   const [activeTab, setActiveTab] = useState<DiagramType>(DiagramType.MERMAID)
   const [isLoading, setIsLoading] = useState(false)
   const [diagramState, setDiagramState] = useState<DiagramState>({
@@ -233,8 +234,12 @@ export default function App() {
       }
     }
 
-    // 临时跳过登录验证
+    // 临时跳过登录验证，但加载用户信息
     setIsLoggedIn(true)
+    const userInfo = getUserInfo()
+    if (userInfo) {
+      setUsername(userInfo.username)
+    }
   }, [])
 
   // 主题切换
@@ -453,6 +458,7 @@ export default function App() {
         history={history}
         activeTab={activeTab}
         collapsed={isSidebarCollapsed}
+        username={username}
         onSelectHistory={handleHistorySelect}
         onTabChange={setActiveTab}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -469,7 +475,7 @@ export default function App() {
 
         <div className="flex-1 flex overflow-hidden">
           {/* 编辑面板 */}
-          <div className={`flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-10 shadow-xl shrink-0 transition-all duration-300 ${isPromptPanelCollapsed ? 'w-12' : 'w-[400px]'}`}>
+          <div className={`flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-10 shadow-xl shrink-0 transition-all duration-300 ${isPromptPanelCollapsed ? 'w-12' : 'w-[340px]'}`}>
             {/* 折叠按钮 */}
             <div className="h-14 flex items-center justify-center border-b border-slate-200 dark:border-slate-800 relative transition-colors shrink-0">
               {!isPromptPanelCollapsed && (

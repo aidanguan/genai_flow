@@ -69,6 +69,23 @@ function saveToken(token: string) {
 // 移除 token
 export function removeToken() {
   localStorage.removeItem('access_token')
+  localStorage.removeItem('user_info')
+}
+
+// 保存用户信息
+function saveUserInfo(user: UserResponse) {
+  localStorage.setItem('user_info', JSON.stringify(user))
+}
+
+// 获取用户信息
+export function getUserInfo(): UserResponse | null {
+  const userInfo = localStorage.getItem('user_info')
+  if (!userInfo) return null
+  try {
+    return JSON.parse(userInfo)
+  } catch {
+    return null
+  }
 }
 
 // 注册
@@ -111,7 +128,40 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
 
   const result = await response.json()
   saveToken(result.access_token)
+  
+  // 登录成功后获取用户信息
+  await fetchCurrentUser()
+  
   return result
+}
+
+// 获取当前用户信息
+export async function fetchCurrentUser(): Promise<UserResponse> {
+  const token = getToken()
+  
+  if (!token) {
+    throw new Error('未登录')
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  })
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      removeToken()
+      throw new Error('登录已过期，请重新登录')
+    }
+    const error = await response.json()
+    throw new Error(error.detail || '获取用户信息失败')
+  }
+
+  const user = await response.json()
+  saveUserInfo(user)
+  return user
 }
 
 // 生成图表
